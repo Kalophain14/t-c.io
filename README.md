@@ -95,7 +95,3 @@ Edit `src/app/projects/page.tsx` and add to the `projects` array:
 
 MIT — feel free to fork and personalize.
 ```
-
----
-
-Save as `README.md` next to `package.json`.
