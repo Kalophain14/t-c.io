@@ -1,13 +1,13 @@
 {
-  "name": "noone-frontend",
+  "name": "t-c.io",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
+  "dev": "next dev --no-turbo",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint"
+},
   "type": "module",
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
