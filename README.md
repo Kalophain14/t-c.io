@@ -1,7 +1,3 @@
-Here's your README as one clean block — copy everything between the lines:
-
----
-
 ```
 # t-c.io
 
