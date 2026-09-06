@@ -1,9 +1,9 @@
 export const metadata = { title: 'Uses' }
 const gear = [
   { category: 'Editor', items: ['VS Code', 'JetBrains Mono'] },
-  { category: 'Terminal', items: ['iTerm2', 'zsh', 'oh-my-zsh'] },
+  { category: 'Terminal', items: ['Ghostty', 'zsh', 'oh-my-zsh'] },
   { category: 'Design', items: ['Figma', 'Linear'] },
-  { category: 'Hardware', items: ['MacBook Pro M3', 'Keychron Q1'] },
+  { category: 'Hardware', items: ['MacBook Pro M1', 'Keychron K8 Pro'] },
 ]
 export default function UsesPage() {
   return (
