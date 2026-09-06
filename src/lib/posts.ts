@@ -1,86 +1,65 @@
-import type { Metadata } from 'next'
-import glob from 'fast-glob'
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
 
-export type PostType = 'article' | 'video'
+const postsDirectory = path.join(process.cwd(), 'content/posts')
 
-interface ArticleMeta {
-  type: 'article'
-  title: string
-  description: string
-  author: string
-  date: string
-  coverImage?: string
-}
-
-interface VideoMeta {
-  type: 'video'
-  title: string
-  description: string
-  author: string
-  date: string
-  youtubeId: string
-  coverImage?: string
-}
-
-export type PostMeta = ArticleMeta | VideoMeta
-
-export type Post = PostMeta & {
+export interface Post {
   slug: string
+  title: string
+  date: string
+  description: string
+  coverImage?: string
   href: string
+  content: string
 }
 
-export function createPostMetadata(post: PostMeta): Metadata {
-  const hasCover = Boolean(post.coverImage)
-
-  return {
-    title: post.title,
-    description: post.description,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      type: 'article',
-      publishedTime: post.date,
-      ...(hasCover
-        ? {
-            images: [
-              {
-                url: post.coverImage!,
-                alt: post.title,
-              },
-            ],
-          }
-        : {}),
-    },
-    twitter: {
-      card: hasCover ? 'summary_large_image' : 'summary',
-      title: post.title,
-      description: post.description,
-      ...(hasCover ? { images: [post.coverImage!] } : {}),
-    },
+export async function getAllPosts(): Promise<Post[]> {
+  if (!fs.existsSync(postsDirectory)) {
+    return []
   }
+
+  const filenames = fs
+    .readdirSync(postsDirectory)
+    .filter((filename) => filename.endsWith('.mdx'))
+
+  const posts = filenames.map((filename) => {
+    const slug = filename.replace(/\.mdx$/, '')
+    const fullPath = path.join(postsDirectory, filename)
+    const fileContents = fs.readFileSync(fullPath, 'utf8')
+    const { data, content } = matter(fileContents)
+
+    return {
+      slug,
+      title: data.title ?? slug,
+      date: data.date ?? '',
+      description: data.description ?? '',
+      coverImage: data.coverImage,
+      href: `/posts/${slug}`,
+      content,
+    }
+  })
+
+  return posts.sort((a, b) => (a.date < b.date ? 1 : -1))
 }
 
-async function importPost(postFilename: string): Promise<Post> {
-  let { post } = (await import(`../app/posts/${postFilename}`)) as {
-    default: React.ComponentType
-    post: PostMeta
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const fullPath = path.join(postsDirectory, `${slug}.mdx`)
+
+  if (!fs.existsSync(fullPath)) {
+    return null
   }
 
-  let slug = postFilename.replace(/(\/page)?\.mdx$/, '')
+  const fileContents = fs.readFileSync(fullPath, 'utf8')
+  const { data, content } = matter(fileContents)
 
   return {
     slug,
+    title: data.title ?? slug,
+    date: data.date ?? '',
+    description: data.description ?? '',
+    coverImage: data.coverImage,
     href: `/posts/${slug}`,
-    ...post,
+    content,
   }
-}
-
-export async function getAllPosts() {
-  let postFilenames = await glob('*/page.mdx', {
-    cwd: './src/app/posts',
-  })
-
-  let posts = await Promise.all(postFilenames.map(importPost))
-
-  return posts.sort((a, z) => +new Date(z.date) - +new Date(a.date))
 }
