@@ -4,12 +4,18 @@ import matter from 'gray-matter'
 
 const postsDirectory = path.join(process.cwd(), 'content/posts')
 
+export interface PostImage {
+  src: string
+  alt: string
+}
+
 export interface Post {
   slug: string
   title: string
   date: string
   description: string
   coverImage?: string
+  images?: PostImage[]
   href: string
   content: string
 }
@@ -35,6 +41,7 @@ export async function getAllPosts(): Promise<Post[]> {
       date: data.date ?? '',
       description: data.description ?? '',
       coverImage: data.coverImage,
+      images: data.images,
       href: `/posts/${slug}`,
       content,
     }
@@ -59,6 +66,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     date: data.date ?? '',
     description: data.description ?? '',
     coverImage: data.coverImage,
+    images: data.images,
     href: `/posts/${slug}`,
     content,
   }

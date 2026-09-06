@@ -8,9 +8,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const sourceSerif = Source_Serif_4({ subsets: ['latin'], variable: '--font-source-serif', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: { default: 'noone.io', template: '%s | noone.io' },
+  title: { default: 't-c.io', template: '%s | noone.io' },
   description: 'Developer, designer, and writer.',
-  metadataBase: new URL('https://noone.io'),
+  metadataBase: new URL('https://t-c.io'),
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

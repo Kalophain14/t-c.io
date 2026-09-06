@@ -2,6 +2,7 @@
 const nextConfig = {
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'miro.medium.com' }],
+    unoptimized: true,
   },
   async redirects() {
     return [
