@@ -11,7 +11,7 @@ export default function HomePage() {
         <RotatingGreeting />, I&apos;m <span className="text-accent">Temoso</span>.
       </h1>
       <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-        We are the null before the object, the instance with no fixed zone, the query that finds signal WHERE others find noise. We strip syntax to deploy something true. We are noone.
+        I&apos;m the null before the object, the instance with no fixed zone, the query that finds signal where others find noise. I strip syntax to deploy something true. I am noone.
       </p>
       <div className="mt-8 flex flex-wrap gap-4">
         <Link href="/about" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">

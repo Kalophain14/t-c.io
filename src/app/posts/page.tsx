@@ -19,30 +19,32 @@ export default async function PostsPage() {
         {posts.map((post) => (
           <article
             key={post.slug}
-            className="group overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-accent/20"
+            className="group flex gap-5 rounded-xl border border-border bg-card p-5 transition-colors hover:border-accent/20"
           >
             {post.coverImage && (
-              <Link href={post.href} className="block aspect-[2/1] overflow-hidden">
+              <Link
+                href={post.href}
+                className="relative hidden aspect-square w-28 flex-none overflow-hidden rounded-lg sm:block"
+              >
                 <Image
                   src={post.coverImage}
                   alt={post.title}
-                  width={800}
-                  height={400}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </Link>
             )}
-            <div className="p-6">
+            <div className="min-w-0">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <time dateTime={post.date}>{formatDate(post.date)}</time>
               </div>
-              <h2 className="mt-3 text-xl font-semibold text-card-foreground group-hover:text-accent">
+              <h2 className="mt-2 text-xl font-semibold text-card-foreground group-hover:text-accent">
                 <Link href={post.href}>{post.title}</Link>
               </h2>
               <p className="mt-2 text-muted-foreground">{post.description}</p>
               <Link
                 href={post.href}
-                className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
+                className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
               >
                 Read more <ArrowRight className="h-3 w-3" />
               </Link>

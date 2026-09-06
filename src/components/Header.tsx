@@ -50,11 +50,30 @@ function MobileNavItem({
   )
 }
 
+function isTabbable(el: Element): el is HTMLElement {
+  if (!(el instanceof HTMLElement)) return false
+  if (el.hasAttribute('disabled')) return false
+  if (el.getAttribute('aria-hidden') === 'true') return false
+  if (el.getAttribute('tabindex') === '-1') return false
+  const tag = el.tagName.toLowerCase()
+  if (tag === 'a' && el.hasAttribute('href')) return true
+  if (
+    tag === 'button' ||
+    tag === 'input' ||
+    tag === 'select' ||
+    tag === 'textarea'
+  ) {
+    return true
+  }
+  if (el.hasAttribute('tabindex') && el.getAttribute('tabindex') !== '-1') {
+    return true
+  }
+  return false
+}
+
 function MobileNavigation({ className }: { className?: string }) {
   let [open, setOpen] = useState(false)
-  // Stays true through the exit morph so the real button doesn’t flash early.
   let [trayMounted, setTrayMounted] = useState(false)
-  // Avoid a stuck :hover/focus ring when the trigger remounts under the cursor.
   let [suppressTriggerChrome, setSuppressTriggerChrome] = useState(false)
   let pathname = usePathname()
   let [pathnameWhenOpen, setPathnameWhenOpen] = useState(pathname)
@@ -64,6 +83,8 @@ function MobileNavigation({ className }: { className?: string }) {
   let contentRef = useRef<HTMLDivElement>(null)
   let [origin, setOrigin] = useState<TrayBounds | null>(null)
   let [target, setTarget] = useState<TrayBounds | null>(null)
+  let lastFocusedRef = useRef<HTMLElement | null>(null)
+  let closeBtnRef = useRef<HTMLButtonElement>(null)
 
   if (pathnameWhenOpen !== pathname) {
     setPathnameWhenOpen(pathname)
@@ -91,7 +112,7 @@ function MobileNavigation({ className }: { className?: string }) {
     })
     setTrayMounted(true)
     setOpen(true)
-    // Drop click focus so it doesn’t resurface as a ring after close.
+    lastFocusedRef.current = document.activeElement as HTMLElement | null
     triggerRef.current?.blur()
   }
 
@@ -123,9 +144,37 @@ function MobileNavigation({ className }: { className?: string }) {
       return
     }
 
+    const raf = window.requestAnimationFrame(() => {
+      const toFocus =
+        closeBtnRef.current ||
+        contentRef.current?.querySelector<HTMLElement>('a, button, [tabindex]')
+      toFocus?.focus()
+    })
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         closeMenu()
+        return
+      }
+      if (event.key !== 'Tab' || !contentRef.current) return
+
+      const tabbables = Array.from(contentRef.current.querySelectorAll('*')).filter(isTabbable)
+      if (tabbables.length === 0) return
+
+      const first = tabbables[0]
+      const last = tabbables[tabbables.length - 1]
+      const active = document.activeElement as HTMLElement | null
+
+      if (event.shiftKey) {
+        if (active === first || !contentRef.current.contains(active)) {
+          event.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (active === last || !contentRef.current.contains(active)) {
+          event.preventDefault()
+          first.focus()
+        }
       }
     }
 
@@ -149,15 +198,22 @@ function MobileNavigation({ className }: { className?: string }) {
     window.addEventListener('resize', onResize)
 
     return () => {
+      window.cancelAnimationFrame(raf)
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('resize', onResize)
+      if (lastFocusedRef.current && typeof lastFocusedRef.current.focus === 'function') {
+        try {
+          lastFocusedRef.current.focus()
+        } catch {
+          /* ignore */
+        }
+      }
+      lastFocusedRef.current = null
     }
   }, [open])
 
   let transition = motionTransition(bouncySpring, reduceMotion)
-  // Half the pill height (= true capsule). Avoid 9999 → 24, which stays
-  // fully round for most of the spring and only "settles" at the end.
   let pillRadius = origin ? origin.height / 2 : 20
   let cardRadius = 24
   let labelFade = motionTransition(contentFade, reduceMotion)
@@ -234,7 +290,6 @@ function MobileNavigation({ className }: { className?: string }) {
               }}
               transition={transition}
             >
-              {/* Same surface carries the Menu label so it never pops off */}
               <motion.div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm font-medium text-foreground"
@@ -265,6 +320,7 @@ function MobileNavigation({ className }: { className?: string }) {
                 >
                   <div className="flex flex-row-reverse items-center justify-between">
                     <button
+                      ref={closeBtnRef}
                       type="button"
                       aria-label="Close menu"
                       className="-m-1 p-1"
@@ -362,12 +418,11 @@ function ThemeToggle() {
   let reduceMotion = useReducedMotion()
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
 
   let isDark = mounted && resolvedTheme === 'dark'
-  let transition = motionTransition(bouncy({ duration: 0.3 }), reduceMotion)
+  let transition = motionTransition(bouncy(), reduceMotion)
 
   return (
     <button

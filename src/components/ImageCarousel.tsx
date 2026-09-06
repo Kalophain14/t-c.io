@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
 interface CarouselImage {
@@ -12,8 +12,20 @@ export function ImageCarousel({ images = [] }: { images?: CarouselImage[] }) {
   const [index, setIndex] = useState(0)
   const touchStartX = useRef<number | null>(null)
 
+  const count = images.length
+
+  useEffect(() => {
+    if (count === 0) return
+    setIndex((current) => {
+      if (current >= count) return count - 1
+      if (current < 0) return 0
+      return current
+    })
+  }, [count])
+
   function goTo(i: number) {
-    setIndex((i + images.length) % images.length)
+    if (count === 0) return
+    setIndex(((i % count) + count) % count)
   }
 
   function handleTouchStart(e: React.TouchEvent) {

@@ -91,7 +91,7 @@ export default function AboutPage() {
           can get clean.
         </p>
 
-        <p className="font-medium not-italic text-foreground italic">
+        <p className="font-medium italic text-foreground">
           We ship truth. We stay no one.
         </p>
 
