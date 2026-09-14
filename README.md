@@ -9,7 +9,7 @@ Personal site for t-c.io — portfolio, writing, projects, uses, and contact.
 - **MDX** for posts
 - **Tailwind CSS v4**
 - **Motion** for animation
-- **Spring Boot** backend for contact form (separate repo)
+- **Spring Boot** backend for contact form (separate repo Java)
 
 ## Getting started
 
